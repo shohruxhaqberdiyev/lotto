@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Omad Lotto</title>
+    <link rel="stylesheet" href="bulma.min.css">
+    <script src="vue.js"></script>
+    <script src="vuex.js"></script>
+    <script src="store.js"></script>
+    <script src="lottopad.js"></script>
+</head>
+<body>
+<section class="section" id="app">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-6">
+                <lottopad :tiles="tile" :lottomin="lottoMin" :index="index" v-for="(tile,index) in tiles"></lottopad>
+                <br>
+                <br>
+                <br>
+
+                <span class="button is-info is-rounded" :disabled="!canSend" @click.prevent="addTile">Add new</span>
+                <button v-if="(tilesLength>1 )" class="remove-ticket button is-warning " @click.prevent="removeTile">
+                    Remove
+                </button>
+            </div>
+            <div class="column is-6">
+
+                <div class="select">
+                    <select v-model="lottoMin">
+                        <option :value="5">36/5</option>
+                        <option :value="6">36/6</option>
+                    </select>
+                    <div class="pres-properties">
+                        <br>
+                        <p>Tickets <span> {{ tilesLength }}</span></p>
+                        <br>
+                        <p>Combinations <span>{{totalCombinations}}</span></p>
+                        <br>
+                        <p>Total sum
+                            <span>{{totalPrice}}</span>
+                        </p>
+                        <br>
+                    </div>
+
+                </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <div class="is-clearfix">
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <span class="button is-warning is-rounded" :disabled="!canSend" @click.prevent="send">Send</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+<script>
+
+    function isEmpty(obj) {
+        var result = false;
+        result = (Object.keys(obj).length < 5) ? true : false;
+        return result;
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            lottoMin: 5,
+        },
+        store,
+        created(){
+            this.addTile();
+        },
+        computed: {
+            tiles: () => store.state.tiles,
+            canSend() {
+                var canSend = this.tiles.length > 0;
+                this.tiles.forEach((el) => {
+                    if(canSend && el.length < this.lottoMin){
+                        canSend = false;
+                    }
+                });
+                return canSend;
+            },
+            tilesLength: () => store.state.tiles.length,
+            totalCombinations() {
+                var totalCombination_ = 0;
+                store.state.totalCombinations.forEach(function(element) {
+                    totalCombination_ += element;
+                });
+                console.log(totalCombination_);
+                return totalCombination_;
+
+            },
+            totalPrice() {
+                var totalPrice_ = 0;
+                store.state.totalPrice.forEach(function(element) {
+                    totalPrice_ += element;
+                });
+                return totalPrice_;
+            },
+        },
+        methods: {
+            send: function () {
+                this.canSend && alert(JSON.stringify(this.tiles))
+            },
+            addTile: function () {
+                this.$store.commit('addTile');
+            },
+            removeTile: function () {
+                this.$store.commit('removeTile');
+            }
+        },
+    });
+</script>
+</body>
+</html>
